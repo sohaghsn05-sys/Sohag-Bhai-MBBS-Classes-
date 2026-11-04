@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sohag Bhai MBBS Classes - Medical LMS Platform</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                            950: '#2e1065',
+                        },
+                        medical: {
+                            blue: '#0284c7',
+                            teal: '#0d9488',
+                            emerald: '#059669',
+                            rose: '#e11d48'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Hind Siliguri', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts for Bengali & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS Styles -->
+    <style>
+        body {
+            font-family: 'Inter', 'Hind Siliguri', sans-serif;
+            background-color: #f8fafc;
+        }
+        .bengali-font {
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .gradient-banner {
+            background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 50%, #312e81 100%);
+        }
+        .gradient-accent {
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Line clamp helpers */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="flex-grow flex flex-col">
+        <!-- Navigation Bar -->
+        <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Brand Logo -->
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                        <div class="w-10 h-10 rounded-xl gradient-banner flex items-center justify-center text-white shadow-md shadow-brand-900/20">
+                            <i class="fa-solid font-bold fa-user-doctor text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-900 to-brand-600 block leading-tight">
+                                Sohag Bhai
+                            </span>
+                            <span class="text-xs font-semibold tracking-wider text-slate-500 uppercase block">MBBS Classes</span>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar (Desktop) -->
+                    <div class="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400"></i>
+                        <input type="text" id="globalSearchInput" onkeyup="handleSearch(event)" placeholder="Search classes, topics, PDF notes..." class="w-full pl-9 pr-4 py-2 bg-slate-100 hover:bg-slate-50 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-500 focus:outline-none transition-all duration-200">
+                    </div>
+
+                    <!-- Desktop Navigation Controls -->
+                    <div class="hidden lg:flex items-center space-x-4">
+                        <button onclick="navigateTo('home')" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-700 transition">
+                            <i class="fa-solid fa-house mr-1"></i> Home
+                        </button>
+                        <button onclick="navigateTo('subjects')" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-700 transition">
+                            <i class="fa-solid fa-book-medical mr-1"></i> Subjects
+                        </button>
+                        <button onclick="navigateTo('exams')" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-700 transition">
+                            <i class="fa-solid fa-file-pen mr-1"></i> Exams
+                        </button>
+
+                        <div class="h-5 w-px bg-slate-200 my-auto"></div>
+
+                        <!-- User Profile / Auth Action Buttons -->
+                        <div id="authHeaderControls" class="flex items-center gap-2">
+                            <!-- Injected dynamically via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Mobile Navigation Toggle -->
+                    <div class="flex items-center gap-2 lg:hidden">
+                        <button onclick="openAuthModal()" id="mobileAuthQuickBtn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-700 text-white">
+                            Login
+                        </button>
+                        <button onclick="toggleMobileMenu()" class="p-2 text-slate-600 hover:text-slate-900 focus:outline-none">
+                            <i class="fa-solid fa-bars text-xl" id="menuToggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Drawer Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2">
+                <a href="#" onclick="navigateTo('home')" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">Home</a>
+                <a href="#" onclick="navigateTo('subjects')" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">Subjects & Classes</a>
+                <a href="#" onclick="navigateTo('exams')" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100">Examinations</a>
+                <div id="mobileAuthControls" class="pt-2 border-t border-slate-100"></div>
+            </div>
+        </header>
+
+        <!-- PENDING APPROVAL WARNING BANNER (Shows if user registered but pending) -->
+        <div id="pendingStatusBanner" class="hidden bg-amber-50 border-b border-amber-200 py-3 px-4">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-900 text-sm">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-3 w-3 relative">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    </span>
+                    <p class="font-medium">
+                        <i class="fa-solid fa-clock mr-1.5"></i>
+                        Account Approval Status: <strong id="pendingUserEmail">student@example.com</strong> is <span class="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-xs uppercase font-bold">Pending Admin Approval</span>
+                    </p>
+                </div>
+                <p class="text-xs text-amber-800">You will get complete class access as soon as Sohag Bhai approves your account.</p>
+            </div>
+        </div>
+
+        <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+        <main id="mainContent" class="flex-grow">
+            <!-- Dynamic pages (Home, Subjects, Video Details, Admin Dashboard, Exams, etc.) rendered here -->
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-800">
+                    <div class="space-y-4 md:col-span-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg gradient-banner flex items-center justify-center text-white">
+                                <i class="fa-solid fa-user-doctor text-lg"></i>
+                            </div>
+                            <span class="text-lg font-bold text-white tracking-wide">Sohag Bhai MBBS</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed bengali-font">
+                            মেডিকেল ছাত্র-ছাত্রীদের জন্য একটি প্রিমিয়াম অনলাইন লার্নিং প্ল্যাটফর্ম। অ্যানাটমি, ফিজিওলজি ও বায়োকেমিস্ট্রি ক্লাসের এক নির্ভরযোগ্য প্ল্যাটফর্ম।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Quick Links</h4>
+                        <ul class="space-y-2 text-xs">
+                            <li><a href="#" onclick="navigateTo('home')" class="hover:text-brand-300 transition">Homepage</a></li>
+                            <li><a href="#" onclick="navigateTo('subjects')" class="hover:text-brand-300 transition">Subject Folders</a></li>
+                            <li><a href="#" onclick="navigateTo('exams')" class="hover:text-brand-300 transition">Online Examinations</a></li>
+                            <li><a href="#" onclick="openAuthModal('admin')" class="hover:text-brand-300 transition">Admin Portal</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Core MBBS Subjects</h4>
+                        <ul class="space-y-2 text-xs">
+                            <li><a href="#" onclick="filterBySubject('Anatomy')" class="hover:text-brand-300 transition">Human Anatomy</a></li>
+                            <li><a href="#" onclick="filterBySubject('Physiology')" class="hover:text-brand-300 transition">Medical Physiology</a></li>
+                            <li><a href="#" onclick="filterBySubject('Biochemistry')" class="hover:text-brand-300 transition">Biochemistry & Molecular</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Connect & Support</h4>
+                        <p class="text-xs text-slate-400 mb-3">Have questions regarding MBBS online courses?</p>
+                        <div class="space-y-2 text-xs text-slate-400">
+                            <p><i class="fa-solid fa-envelope mr-2 text-brand-400"></i> support@sohagbhaimbbs.com</p>
+                            <p><i class="fa-solid fa-phone mr-2 text-brand-400"></i> +880 1700-000000</p>
+                            <p><i class="fa-solid fa-location-dot mr-2 text-brand-400"></i> Dhaka, Bangladesh</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+                    <p>&copy; 2026 Sohag Bhai MBBS Classes. All Rights Reserved.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-slate-400"><i class="fa-brands fa-facebook text-base"></i></a>
+                        <a href="#" class="hover:text-slate-400"><i class="fa-brands fa-youtube text-base"></i></a>
+                        <a href="#" class="hover:text-slate-400"><i class="fa-brands fa-telegram text-base"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL: LOGIN / SIGNUP MODAL -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all border border-slate-100">
+            <!-- Modal Header Header Tabs -->
+            <div class="bg-slate-50 border-b border-slate-100 p-2 flex text-sm font-medium">
+                <button id="tabStudentBtn" onclick="switchAuthTab('student')" class="flex-1 py-2.5 rounded-xl text-center transition font-semibold text-brand-900 bg-white shadow-sm">
+                    <i class="fa-solid fa-user-graduate mr-1.5"></i> Student Portal
+                </button>
+                <button id="tabAdminBtn" onclick="switchAuthTab('admin')" class="flex-1 py-2.5 rounded-xl text-center transition font-semibold text-slate-500 hover:text-slate-800">
+                    <i class="fa-solid fa-user-shield mr-1.5"></i> Admin Login
+                </button>
+            </div>
+
+            <div class="p-6">
+                <!-- STUDENT AUTH FORM CONTAINER -->
+                <div id="studentAuthContainer">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-900">Student Portal</h3>
+                        <p class="text-xs text-slate-500 mt-1">Register for approval or log in with your email</p>
+                    </div>
+
+                    <!-- Email Submission / Login Form -->
+                    <form id="studentAuthForm" onsubmit="handleStudentAuth(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Full Name</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="text" id="studentNameInput" required placeholder="Dr. Rafiq Islam" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Medical Student Email Address</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-envelope absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="email" id="studentEmailInput" required placeholder="student@medical.edu.bd" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Medical College / Session</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-hospital-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="text" id="studentCollegeInput" placeholder="DMC / MMC / SSMC (Session 2023-24)" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-xs text-indigo-900 leading-relaxed">
+                                <i class="fa-solid fa-circle-info mr-1 text-indigo-600"></i>
+                                First time registering? Your email will be sent to <strong>Admin for Approval</strong>. Once approved, you can access all videos and PDF notes anytime!
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-semibold text-sm rounded-lg shadow-md shadow-brand-900/20 transition flex items-center justify-center gap-2">
+                                <span>Continue to Student Dashboard</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ADMIN AUTH FORM CONTAINER -->
+                <div id="adminAuthContainer" class="hidden">
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 bg-purple-100 text-brand-800 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fa-solid fa-lock text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900">Admin Authentication</h3>
+                        <p class="text-xs text-slate-500 mt-1">Sohag Bhai Admin Control Panel Access</p>
+                    </div>
+
+                    <form id="adminAuthForm" onsubmit="handleAdminAuth(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Admin Password</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-key absolute left-3 top-3 text-slate-400 text-sm"></i>
+                                    <input type="password" id="adminPasswordInput" required placeholder="Enter secret admin key" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-slate-500 italic">
+                                Note: Admin credentials allow uploading courses, notes, managing students, and moderate comments.
+                            </p>
+
+                            <button type="submit" class="w-full py-2.5 bg-brand-900 hover:bg-slate-900 text-white font-semibold text-sm rounded-lg shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>Access Admin Dashboard</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Close Modal Action -->
+                <button onclick="closeAuthModal()" class="mt-4 w-full py-2 text-center text-xs font-medium text-slate-500 hover:text-slate-800">
+                    Cancel & Return to Site
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION CORE -->
+    <script>
+        /* ==========================================================================
+           1. APPLICATION STATE & PERSISTENCE ENGINE (LOCAL STORAGE)
+           ========================================================================== */
+        
+        const DEFAULT_SUBJECTS = [
+            { id: 'sub-1', name: 'Anatomy', description: 'Gross Anatomy, Histology, Embryology & Neuroanatomy', icon: 'fa-child-body', color: 'bg-purple-600' },
+            { id: 'sub-2', name: 'Physiology', description: 'Systemic Physiology, Hematology & Biophysics', icon: 'fa-heart-pulse', color: 'bg-rose-600' },
+            { id: 'sub-3', name: 'Biochemistry', description: 'Enzyme Kinetics, Clinical Biochemistry & Metabolism', icon: 'fa-dna', color: 'bg-teal-600' }
+        ];
+
+        const DEFAULT_VIDEOS = [
+            {
+                id: 'vid-101',
+                title: 'Upper Limb: Brachial Plexus Formation & Clinical Correlates',
+                description: 'Comprehensive breakdown of Brachial Plexus roots, trunks, divisions, cords, and branches. Includes Erb paralysis and Klumpke palsy clinical cases.',
+                subject: 'Anatomy',
+                chapter: 'Upper Limb',
+                classNo: '01',
+                uploadDate: '2026-03-10',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Demo responsive player URL
+                thumbnail: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80',
+                pdfs: [
+                    { id: 'pdf-1', title: 'Brachial Plexus Simplified Flowchart.pdf', size: '2.4 MB', url: '#' },
+                    { id: 'pdf-2', title: 'Upper Limb High Yield Clinical Notes.pdf', size: '4.1 MB', url: '#' }
+                ]
+            },
+            {
+                id: 'vid-102',
+                title: 'Cardiovascular Physiology: Cardiac Cycle & Wiggers Diagram',
+                description: 'In-depth explanation of ventricular pressure-volume curves, atrial waves (a, c, v), heart sounds (S1, S2, S3, S4), and valve pathologies.',
+                subject: 'Physiology',
+                chapter: 'Cardiovascular System',
+                classNo: '02',
+                uploadDate: '2026-03-12',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                thumbnail: 'https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?auto=format&fit=crop&w=600&q=80',
+                pdfs: [
+                    { id: 'pdf-3', title: 'Cardiac Cycle Wiggers Diagram Notes.pdf', size: '1.8 MB', url: '#' }
+                ]
+            },
+            {
+                id: 'vid-103',
+                title: 'Biochemistry: Enzyme Kinetics & Michaelis-Menten Equation',
+                description: 'Understanding Vmax, Km, competitive vs non-competitive inhibition, Lineweaver-Burk plots, and allosteric enzymes in medical biochemistry.',
+                subject: 'Biochemistry',
+                chapter: 'Enzyme Kinetics',
+                classNo: '01',
+                uploadDate: '2026-03-14',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                thumbnail: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=80',
+                pdfs: [
+                    { id: 'pdf-4', title: 'Enzyme Inhibition Summary Sheet.pdf', size: '3.2 MB', url: '#' }
+                ]
+            }
+        ];
+
+        const DEFAULT_STUDENTS = [
+            {
+                id: 'std-1',
+                name: 'Dr. Tanvir Ahmed',
+                email: 'tanvir.dmc@gmail.com',
+                college: 'Dhaka Medical College (K-78)',
+                status: 'approved',
+                registeredAt: '2026-02-01'
+            },
+            {
+                id: 'std-2',
+                name: 'Nusrat Jahan',
+                email: 'nusrat.ssmc@yahoo.com',
+                college: 'Sir Salimullah Medical College',
+                status: 'pending',
+                registeredAt: '2026-03-15'
+            },
+            {
+                id: 'std-3',
+                name: 'Sajid Hossain',
+                email: 'sajid.mmc@gmail.com',
+                college: 'Mymensingh Medical College',
+                status: 'pending',
+                registeredAt: '2026-03-16'
+            }
+        ];
+
+        const DEFAULT_EXAMS = [
+            {
+                id: 'exam-1',
+                title: '1st Term Examination - Gross Anatomy of Upper Limb',
+                description: 'Objective & MCQ examination covering Brachial Plexus, Axillary Artery, and Nerve Injuries of the arm and hand.',
+                subject: 'Anatomy',
+                examDate: '2026-03-25',
+                examTime: '08:00 PM',
+                examUrl: 'https://docs.google.com/forms'
+            },
+            {
+                id: 'exam-2',
+                title: 'Cardiovascular System Spotting & Viva Test',
+                description: 'Physiology online quiz with timed clinical scenarios and ECG interpretation.',
+                subject: 'Physiology',
+                examDate: '2026-03-28',
+                examTime: '09:00 PM',
+                examUrl: 'https://docs.google.com/forms'
+            }
+        ];
+
+        const DEFAULT_COMMENTS = [
+            {
+                id: 'cmt-1',
+                videoId: 'vid-101',
+                studentName: 'Dr. Tanvir Ahmed',
+                studentEmail: 'tanvir.dmc@gmail.com',
+                text: 'Sohag Bhai, Erb palsy and Klumpke palsy clinical presentation difference parameter ta khub shundor vabe bujhechi! Thank you so much.',
+                createdAt: '2026-03-11 10:30 AM',
+                adminReply: 'Most welcome Tanvir! Keep studying consistently.'
+            }
+        ];
+
+        // Global State Wrapper
+        let state = {
+            currentUser: null, // { role: 'admin' | 'student', email: '', name: '', status: 'approved' | 'pending' }
+            currentPage: 'home',
+            selectedVideoId: null,
+            selectedSubjectFilter: 'All',
+            subjects: [],
+            videos: [],
+            students: [],
+            exams: [],
+            comments: []
+        };
+
+        // Initialize state from LocalStorage or Load Defaults
+        function initStore() {
+            try {
+                const storedSubjects = localStorage.getItem('sohag_lms_subjects');
+                state.subjects = storedSubjects ? JSON.parse(storedSubjects) : DEFAULT_SUBJECTS;
+
+                const storedVideos = localStorage.getItem('sohag_lms_videos');
+                state.videos = storedVideos ? JSON.parse(storedVideos) : DEFAULT_VIDEOS;
+
+                const storedStudents = localStorage.getItem('sohag_lms_students');
+                state.students = storedStudents ? JSON.parse(storedStudents) : DEFAULT_STUDENTS;
+
+                const storedExams = localStorage.getItem('sohag_lms_exams');
+                state.exams = storedExams ? JSON.parse(storedExams) : DEFAULT_EXAMS;
+
+                const storedComments = localStorage.getItem('sohag_lms_comments');
+                state.comments = storedComments ? JSON.parse(storedComments) : DEFAULT_COMMENTS;
+
+                const storedUser = localStorage.getItem('sohag_lms_current_user');
+                if (storedUser) {
+                    state.currentUser = JSON.parse(storedUser);
+                }
+            } catch (e) {
+                console.error('Error loading state from localStorage', e);
+                state.subjects = DEFAULT_SUBJECTS;
+                state.videos = DEFAULT_VIDEOS;
+                state.students = DEFAULT_STUDENTS;
+                state.exams = DEFAULT_EXAMS;
+                state.comments = DEFAULT_COMMENTS;
+            }
+            saveState();
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem('sohag_lms_subjects', JSON.stringify(state.subjects));
+                localStorage.setItem('sohag_lms_videos', JSON.stringify(state.videos));
+                localStorage.setItem('sohag_lms_students', JSON.stringify(state.students));
+                localStorage.setItem('sohag_lms_exams', JSON.stringify(state.exams));
+                localStorage.setItem('sohag_lms_comments', JSON.stringify(state.comments));
+                if (state.currentUser) {
+                    localStorage.setItem('sohag_lms_current_user', JSON.stringify(state.currentUser));
+                } else {
+                    localStorage.removeItem('sohag_lms_current_user');
+                }
+            } catch (e) {
+                console.error('Failed to save to localStorage', e);
+            }
+        }
+
+        /* ==========================================================================
+           2. UI TOAST & UTILITY HELPERS
+           ========================================================================== */
+        
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-900 text-white';
+            let iconClass = 'fa-circle-info text-blue-400';
+
+            if (type === 'success') {
+                bgClass = 'bg-emerald-900 text-white border border-emerald-700';
+                iconClass = 'fa-circle-check text-emerald-400';
+            } else if (type === 'error') {
+                bgClass = 'bg-rose-900 text-white border border-rose-700';
+                iconClass = 'fa-triangle-exclamation text-rose-400';
+            } else if (type === 'warning') {
+                bgClass = 'bg-amber-900 text-white border border-amber-700';
+                iconClass = 'fa-bell text-amber-400';
+            }
+
+            toast.className = `p-3.5 rounded-xl shadow-xl flex items-center gap-3 text-sm transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${iconClass} text-lg"></i>
+                <div class="flex-1 font-medium">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-xs opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto dismiss
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        /* ==========================================================================
+           3. AUTHENTICATION & ROLE MANAGEMENT
+           ========================================================================== */
+
+        function openAuthModal(defaultTab = 'student') {
+            document.getElementById('authModal').classList.remove('hidden');
+            switchAuthTab(defaultTab);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const studentBtn = document.getElementById('tabStudentBtn');
+            const adminBtn = document.getElementById('tabAdminBtn');
+            const studentContainer = document.getElementById('studentAuthContainer');
+            const adminContainer = document.getElementById('adminAuthContainer');
+
+            if (tab === 'student') {
+                studentBtn.className = "flex-1 py-2.5 rounded-xl text-center transition font-semibold text-brand-900 bg-white shadow-sm";
+                adminBtn.className = "flex-1 py-2.5 rounded-xl text-center transition font-semibold text-slate-500 hover:text-slate-800";
+                studentContainer.classList.remove('hidden');
+                adminContainer.classList.add('hidden');
+            } else {
+                adminBtn.className = "flex-1 py-2.5 rounded-xl text-center transition font-semibold text-brand-900 bg-white shadow-sm";
+                studentBtn.className = "flex-1 py-2.5 rounded-xl text-center transition font-semibold text-slate-500 hover:text-slate-800";
+                adminContainer.classList.remove('hidden');
+                studentContainer.classList.add('hidden');
+            }
+        }
+
+        // Student Authentication Logic
+        function handleStudentAuth(e) {
+            e.preventDefault();
+            const name = document.getElementById('studentNameInput').value.trim();
+            const email = document.getElementById('studentEmailInput').value.trim().toLowerCase();
+            const college = document.getElementById('studentCollegeInput').value.trim();
+
+            if (!email || !name) return;
+
+            // Check if student already exists
+            let existingStudent = state.students.find(s => s.email.toLowerCase() === email);
+
+            if (existingStudent) {
+                // If existing, set user state according to their stored approval status
+                state.currentUser = {
+                    role: 'student',
+                    email: existingStudent.email,
+                    name: existingStudent.name,
+                    college: existingStudent.college,
+                    status: existingStudent.status
+                };
+
+                if (existingStudent.status === 'approved') {
+                    showToast(`Welcome back, ${existingStudent.name}! You are logged in.`, 'success');
+                } else {
+                    showToast(`Your account (${existingStudent.email}) is currently awaiting Admin Approval.`, 'warning');
+                }
+            } else {
+                // New Student Registration -> Requires Admin Approval
+                const newStudent = {
+                    id: 'std-' + Date.now(),
+                    name: name,
+                    email: email,
+                    college: college || 'Medical Student',
+                    status: 'pending',
+                    registeredAt: new Date().toISOString().split('T')[0]
+                };
+
+                state.students.unshift(newStudent);
+                state.currentUser = {
+                    role: 'student',
+                    email: email,
+                    name: name,
+                    college: newStudent.college,
+                    status: 'pending'
+                };
+
+                showToast(`Registration request submitted! Sohag Bhai will approve your email shortly.`, 'info');
+            }
+
+            saveState();
+            closeAuthModal();
+            updateAuthHeader();
+            renderPage();
+        }
+
+        // Admin Authentication Logic (Secret Password Verification)
+        function handleAdminAuth(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPasswordInput').value;
+
+            // Secure Admin password check
+            if (password === "#MyCourseMBBS") {
+                state.currentUser = {
+                    role: 'admin',
+                    name: 'Sohag Bhai (Admin)',
+                    email: 'admin@sohagbhaimbbs.com',
+                    status: 'approved'
+                };
+                saveState();
+                closeAuthModal();
+                showToast('Successfully authenticated as Admin!', 'success');
+                updateAuthHeader();
+                navigateTo('admin-dashboard');
+            } else {
+                showToast('Incorrect Admin Password! Access denied.', 'error');
+            }
+        }
+
+        function logout() {
+            state.currentUser = null;
+            saveState();
+            showToast('Logged out successfully.', 'info');
+            updateAuthHeader();
+            navigateTo('home');
+        }
+
+        function updateAuthHeader() {
+            const controls = document.getElementById('authHeaderControls');
+            const mobileControls = document.getElementById('mobileAuthControls');
+            const pendingBanner = document.getElementById('pendingStatusBanner');
+
+            // Reset pending status banner
+            if (state.currentUser && state.currentUser.role === 'student' && state.currentUser.status === 'pending') {
+                pendingBanner.classList.remove('hidden');
+                document.getElementById('pendingUserEmail').innerText = state.currentUser.email;
+            } else {
+                pendingBanner.classList.add('hidden');
+            }
+
+            if (!state.currentUser) {
+                controls.innerHTML = `
+                    <button onclick="openAuthModal('student')" class="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                        Student Login
+                    </button>
+                    <button onclick="openAuthModal('admin')" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-900 hover:bg-slate-900 text-white shadow-sm transition">
+                        Admin Login
+                    </button>
+                `;
+
+                mobileControls.innerHTML = `
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="openAuthModal('student')" class="flex-1 py-2 text-xs font-semibold rounded bg-slate-100 text-slate-800">Student Login</button>
+                        <button onclick="openAuthModal('admin')" class="flex-1 py-2 text-xs font-semibold rounded bg-brand-900 text-white">Admin Portal</button>
+                    </div>
+                `;
+            } else {
+                const isAdmin = state.currentUser.role === 'admin';
+                const badgeColor = isAdmin ? 'bg-amber-100 text-amber-800 border-amber-300' : 
+                    (state.currentUser.status === 'approved' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300');
+
+                const statusLabel = isAdmin ? 'Admin' : (state.currentUser.status === 'approved' ? 'Approved Student' : 'Pending Approval');
+
+                controls.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${isAdmin ? `
+                            <button onclick="navigateTo('admin-dashboard')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-brand-100 text-brand-900 border border-brand-200 hover:bg-brand-200 transition">
+                                <i class="fa-solid fa-gauge mr-1"></i> Admin Dashboard
+                            </button>
+                        ` : ''}
+                        
+                        <div class="text-right">
+                            <span class="text-xs font-bold text-slate-800 block">${state.currentUser.name}</span>
+                            <span class="text-[10px] font-semibold px-1.5 py-0.2 rounded border ${badgeColor}">${statusLabel}</span>
+                        </div>
+
+                        <button onclick="logout()" title="Logout" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                `;
+
+                mobileControls.innerHTML = `
+                    <div class="pt-2 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">${state.currentUser.name}</p>
+                            <p class="text-[10px] text-slate-500">${state.currentUser.email}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            ${isAdmin ? `<button onclick="navigateTo('admin-dashboard')" class="px-2 py-1 text-xs bg-brand-800 text-white rounded">Dashboard</button>` : ''}
+                            <button onclick="logout()" class="px-2 py-1 text-xs bg-rose-100 text-rose-700 rounded">Logout</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /* ==========================================================================
+           4. ROUTING & NAVIGATION SYSTEM
+           ========================================================================== */
+
+        function navigateTo(page, params = {}) {
+            state.currentPage = page;
+            if (params.videoId) state.selectedVideoId = params.videoId;
+            if (params.subject) state.selectedSubjectFilter = params.subject;
+
+            // Scroll smoothly to top on page switch
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            renderPage();
+        }
+
+        function filterBySubject(subjectName) {
+            state.selectedSubjectFilter = subjectName;
+            navigateTo('subjects');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            if (e.key === 'Enter' && query.length > 0) {
+                state.selectedSubjectFilter = 'All';
+                navigateTo('subjects');
+            }
+        }
+
+        /* ==========================================================================
+           5. RENDER ENGINE & PAGE VIEWS
+           ========================================================================== */
+
+        function renderPage() {
+            const main = document.getElementById('mainContent');
+            updateAuthHeader();
+
+            switch (state.currentPage) {
+                case 'home':
+                    main.innerHTML = renderHomePage();
+                    break;
+                case 'subjects':
+                    main.innerHTML = renderSubjectsPage();
+                    break;
+                case 'video-watch':
+                    main.innerHTML = renderVideoWatchPage();
+                    break;
+                case 'admin-dashboard':
+                    // Guard: only admin can access admin dashboard
+                    if (!state.currentUser || state.currentUser.role !== 'admin') {
+                        showToast('Unauthorized access. Admin login required.', 'error');
+                        main.innerHTML = renderHomePage();
+                        openAuthModal('admin');
+                    } else {
+                        main.innerHTML = renderAdminDashboardPage();
+                    }
+                    break;
+                case 'exams':
+                    main.innerHTML = renderExamsPage();
+                    break;
+                default:
+                    main.innerHTML = renderHomePage();
+            }
+        }
+
+        /* --------------------------------------------------------------------------
+           A. HOMEPAGE VIEW
+           -------------------------------------------------------------------------- */
+        function renderHomePage() {
+            const pendingRequestsCount = state.students.filter(s => s.status === 'pending').length;
+
+            return `
+                <!-- BENGALI WELCOME HERO BANNER -->
+                <section class="gradient-banner text-white relative overflow-hidden py-12 sm:py-16">
+                    <!-- Background Decorative Pattern -->
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div class="max-w-3xl mx-auto text-center space-y-6">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-purple-200 border border-white/20 text-xs font-semibold uppercase tracking-wider">
+                                <i class="fa-solid fa-heart-pulse text-rose-400"></i> Premium MBBS Online LMS
+                            </div>
+
+                            <!-- BENGALI WELCOME STATEMENT -->
+                            <div class="p-6 sm:p-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-2xl">
+                                <h1 class="text-xl sm:text-3xl lg:text-4xl font-bold leading-relaxed bengali-font text-amber-200">
+                                    "সবাইকে স্বাগতম জানাই আমাদের প্লাটফর্ম Sohag Bhai MBBS Classes এ। মেডিকেল লাইফকে আরো সহজ আর সুন্দর করতে আমরা সব সময় কাজ করব। আমাদের সাথে যুক্ত থাকবেন। ধন্যবাদ।"
+                                </h1>
+                            </div>
+
+                            <p class="text-sm sm:text-base text-purple-100 font-normal leading-relaxed">
+                                High quality video lectures, concise PDF note downloads, interactive clinical Q&A, and online examinations designed exclusively for Bangladeshi MBBS Students.
+                            </p>
+
+                            <div class="flex flex-wrap justify-center gap-4 pt-2">
+                                <button onclick="navigateTo('subjects')" class="px-6 py-3 rounded-xl bg-white text-brand-900 font-bold text-sm shadow-xl hover:bg-purple-50 transition transform hover:-translate-y-0.5">
+                                    <i class="fa-solid fa-play mr-2 text-brand-700"></i> Explore Class Videos
+                                </button>
+                                <button onclick="navigateTo('exams')" class="px-6 py-3 rounded-xl bg-purple-900/50 hover:bg-purple-900 text-white font-bold text-sm border border-white/20 transition">
+                                    <i class="fa-solid fa-file-pen mr-2"></i> Take Online Exams
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- METRICS & QUICK STATS BAR -->
+                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl shadow-lg flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 text-brand-800 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-2xl font-extrabold text-slate-900">${state.students.filter(s => s.status === 'approved').length + 150}+</h3>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Students</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl shadow-lg flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-2xl font-extrabold text-slate-900">${state.videos.length}</h3>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Class Videos</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl shadow-lg flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-2xl font-extrabold text-slate-900">${state.videos.reduce((acc, v) => acc + (v.pdfs ? v.pdfs.length : 0), 0)}</h3>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">PDF Resources</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl shadow-lg flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-2xl font-extrabold text-slate-900">${state.exams.length}</h3>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Exams</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FEATURED SUBJECTS SECTION -->
+                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <span class="text-xs font-bold text-brand-700 uppercase tracking-widest block mb-1">Organized Folders</span>
+                            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">MBBS Academic Subjects</h2>
+                        </div>
+                        <button onclick="navigateTo('subjects')" class="text-sm font-bold text-brand-700 hover:text-brand-900 flex items-center gap-1">
+                            View All <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${state.subjects.map(sub => {
+                            const videoCount = state.videos.filter(v => v.subject === sub.name).length;
+                            return `
+                                <div onclick="filterBySubject('${sub.name}')" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="w-12 h-12 rounded-xl ${sub.color || 'bg-brand-700'} text-white flex items-center justify-center text-xl shadow-md">
+                                                <i class="fa-solid ${sub.icon || 'fa-book-medical'}"></i>
+                                            </div>
+                                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                                                ${videoCount} Classes
+                                            </span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-slate-900 group-hover:text-brand-700 transition mb-2">${sub.name}</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed mb-4">${sub.description}</p>
+                                    </div>
+                                    <div class="pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-semibold text-brand-700">
+                                        <span>Browse Folders & Notes</span>
+                                        <i class="fa-solid fa-chevron-right text-slate-400 group-hover:translate-x-1 transition"></i>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </section>
+
+                <!-- RECENT UPLOADED CLASSES PREVIEW GRID -->
+                <section class="bg-slate-100/70 py-16 border-y border-slate-200">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-brand-700 uppercase tracking-widest block mb-1">Latest Uploads</span>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Recently Added Video Lectures</h2>
+                            </div>
+                            <button onclick="navigateTo('subjects')" class="text-sm font-bold text-brand-700 hover:text-brand-900 flex items-center gap-1">
+                                Explore All Classes <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${state.videos.slice(0, 3).map(vid => renderVideoCard(vid)).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        /* --------------------------------------------------------------------------
+           B. SUBJECTS & VIDEO LECTURE BROWSER VIEW
+           -------------------------------------------------------------------------- */
+        function renderSubjectsPage() {
+            const currentFilter = state.selectedSubjectFilter || 'All';
+            
+            // Filter videos based on selection
+            let filteredVideos = state.videos;
+            if (currentFilter !== 'All') {
+                filteredVideos = state.videos.filter(v => v.subject === currentFilter);
+            }
+
+            // Also check global search filter if present
+            const searchInput = document.getElementById('globalSearchInput');
+            if (searchInput && searchInput.value.trim() !== '') {
+                const q = searchInput.value.toLowerCase().trim();
+                filteredVideos = filteredVideos.filter(v => 
+                    v.title.toLowerCase().includes(q) || 
+                    v.description.toLowerCase().includes(q) ||
+                    v.chapter.toLowerCase().includes(q)
+                );
+            }
+
+            return `
+                <div class="bg-slate-900 text-white py-10">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h1 class="text-2xl sm:text-3xl font-bold">Medical Course Materials</h1>
+                                <p class="text-xs sm:text-sm text-slate-400 mt-1">Select a subject to filter class lectures and attached PDF notes.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-slate-400">Filter Subject:</span>
+                                <select onchange="filterBySubject(this.value)" class="bg-slate-800 text-white text-xs font-bold py-2 px-3 rounded-lg border border-slate-700 focus:outline-none focus:border-brand-500">
+                                    <option value="All" ${currentFilter === 'All' ? 'selected' : ''}>All Subjects (${state.videos.length})</option>
+                                    ${state.subjects.map(s => `
+                                        <option value="${s.name}" ${currentFilter === s.name ? 'selected' : ''}>${s.name}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Subject Tabs Pill Navigation -->
+                        <div class="flex items-center gap-2 mt-6 overflow-x-auto pb-2 custom-scrollbar">
+                            <button onclick="filterBySubject('All')" class="px-4 py-2 rounded-full text-xs font-bold transition whitespace-nowrap ${currentFilter === 'All' ? 'bg-brand-600 text-white shadow-md' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                                All Subjects
+                            </button>
+                            ${state.subjects.map(sub => `
+                                <button onclick="filterBySubject('${sub.name}')" class="px-4 py-2 rounded-full text-xs font-bold transition whitespace-nowrap ${currentFilter === sub.name ? 'bg-brand-600 text-white shadow-md' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                                    ${sub.name}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    ${filteredVideos.length === 0 ? `
+                        <div class="text-center py-16 bg-white rounded-2xl border border-slate-200">
+                            <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
+                            <h3 class="text-lg font-bold text-slate-800">No classes found in this category</h3>
+                            <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">Admin has not added videos for this subject yet or no matches found.</p>
+                        </div>
+                    ` : `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${filteredVideos.map(vid => renderVideoCard(vid)).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // Helper component to render video lecture thumbnail card
+        function renderVideoCard(vid) {
+            const pdfCount = vid.pdfs ? vid.pdfs.length : 0;
+            const commentCount = state.comments.filter(c => c.videoId === vid.id).length;
+
+            return `
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
+                    <!-- Thumbnail Container with Play Overlay -->
+                    <div class="relative aspect-video bg-slate-900 overflow-hidden cursor-pointer" onclick="navigateTo('video-watch', { videoId: '${vid.id}' })">
+                        <img src="${vid.thumbnail}" alt="${vid.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90 group-hover:opacity-100">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+                        <div class="absolute top-3 left-3 bg-brand-900/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">
+                            Class ${vid.classNo || '01'}
+                        </div>
+                        <div class="absolute top-3 right-3 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                            ${vid.subject}
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-brand-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play ml-1 text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Details -->
+                    <div class="p-5 flex-grow flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="text-[11px] font-semibold text-brand-700 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-folder mr-1"></i> ${vid.chapter || 'General Chapter'}
+                            </div>
+                            <h3 onclick="navigateTo('video-watch', { videoId: '${vid.id}' })" class="font-bold text-slate-900 hover:text-brand-700 transition cursor-pointer line-clamp-2 leading-snug">
+                                ${vid.title}
+                            </h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mt-1.5 leading-relaxed">
+                                ${vid.description}
+                            </p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <div class="flex items-center gap-3">
+                                <span><i class="fa-solid fa-file-pdf text-rose-500 mr-1"></i> ${pdfCount} PDF</span>
+                                <span><i class="fa-solid fa-comments text-brand-500 mr-1"></i> ${commentCount}</span>
+                            </div>
+                            <button onclick="navigateTo('video-watch', { videoId: '${vid.id}' })" class="font-bold text-brand-700 hover:text-brand-900">
+                                Watch Class <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* --------------------------------------------------------------------------
+           C. DEDICATED VIDEO WATCHING & COMMENTS PAGE
+           -------------------------------------------------------------------------- */
+        function renderVideoWatchPage() {
+            const video = state.videos.find(v => v.id === state.selectedVideoId) || state.videos[0];
+            if (!video) return `<div class="p-8 text-center">Video not found.</div>`;
+
+            // Calculate Previous and Next Video
+            const currentIndex = state.videos.findIndex(v => v.id === video.id);
+            const prevVideo = currentIndex > 0 ? state.videos[currentIndex - 1] : null;
+            const nextVideo = currentIndex < state.videos.length - 1 ? state.videos[currentIndex + 1] : null;
+
+            // Get comments for this video
+            const videoComments = state.comments.filter(c => c.videoId === video.id);
+
+            // Access check: User must be approved or Admin to fully interact
+            const isApprovedUser = state.currentUser && (state.currentUser.role === 'admin' || state.currentUser.status === 'approved');
+
+            return `
+                <div class="bg-slate-950 py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Breadcrumb navigation -->
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
+                            <span onclick="navigateTo('home')" class="hover:text-white cursor-pointer">Home</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <span onclick="filterBySubject('${video.subject}')" class="hover:text-white cursor-pointer">${video.subject}</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <span class="text-slate-200 truncate font-semibold">${video.title}</span>
+                        </div>
+
+                        <!-- Embedded Video Player -->
+                        <div class="relative aspect-video w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+                            <iframe src="${video.videoUrl}" title="${video.title}" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <!-- Prev / Next Controls -->
+                        <div class="flex justify-between items-center mt-4">
+                            ${prevVideo ? `
+                                <button onclick="navigateTo('video-watch', { videoId: '${prevVideo.id}' })" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold rounded-lg border border-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-left"></i> Previous Class
+                                </button>
+                            ` : '<div></div>'}
+
+                            ${nextVideo ? `
+                                <button onclick="navigateTo('video-watch', { videoId: '${nextVideo.id}' })" class="px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold rounded-lg flex items-center gap-2 shadow-lg">
+                                    Next Class <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            ` : '<div></div>'}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Details, PDFs, and Comments Grid -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Left 2 Columns: Details & Comments -->
+                        <div class="lg:col-span-2 space-y-8">
+                            <!-- Title & Metadata -->
+                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-extrabold bg-brand-100 text-brand-900">${video.subject}</span>
+                                    <span class="text-xs text-slate-500 font-medium">Chapter: ${video.chapter}</span>
+                                    <span class="text-xs text-slate-400 ml-auto"><i class="fa-solid fa-calendar-day mr-1"></i> Uploaded: ${video.uploadDate}</span>
+                                </div>
+                                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">${video.title}</h1>
+                                <div class="text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Class Overview</h4>
+                                    <p>${video.description}</p>
+                                </div>
+                            </div>
+
+                            <!-- Comment & Discussion Section -->
+                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <i class="fa-solid fa-comments text-brand-600"></i>
+                                        Class Discussion (${videoComments.length})
+                                    </h3>
+                                </div>
+
+                                <!-- Post Comment Form -->
+                                ${isApprovedUser ? `
+                                    <form onsubmit="handlePostComment(event, '${video.id}')" class="space-y-3">
+                                        <textarea id="commentInputText" required rows="3" placeholder="Ask Sohag Bhai a question or comment on this lecture..." class="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white focus:outline-none transition"></textarea>
+                                        <div class="flex justify-between items-center">
+                                            <p class="text-xs text-slate-500">Posting as: <strong class="text-slate-800">${state.currentUser.name}</strong></p>
+                                            <button type="submit" class="px-5 py-2 bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs rounded-lg shadow transition">
+                                                Post Comment
+                                            </button>
+                                        </div>
+                                    </form>
+                                ` : `
+                                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 flex items-center gap-3">
+                                        <i class="fa-solid fa-lock text-amber-600 text-base"></i>
+                                        <div>
+                                            <strong>Approved Student Status Required to Comment.</strong>
+                                            <p class="mt-0.5 text-amber-800">Please register and wait for Admin approval to ask questions.</p>
+                                        </div>
+                                    </div>
+                                `}
+
+                                <!-- Comment Thread List -->
+                                <div class="space-y-4 pt-2">
+                                    ${videoComments.length === 0 ? `
+                                        <p class="text-xs text-slate-400 italic text-center py-4">No comments yet on this class. Be the first to ask a question!</p>
+                                    ` : videoComments.map(cmt => `
+                                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-7 h-7 rounded-full bg-brand-800 text-white font-bold text-xs flex items-center justify-center">
+                                                        ${cmt.studentName ? cmt.studentName.charAt(0) : 'S'}
+                                                    </div>
+                                                    <span class="text-xs font-bold text-slate-800">${cmt.studentName}</span>
+                                                </div>
+                                                <span class="text-[10px] text-slate-400">${cmt.createdAt}</span>
+                                            </div>
+                                            <p class="text-xs text-slate-700 pl-9 leading-relaxed">${cmt.text}</p>
+
+                                            <!-- Admin Reply Box (if available) -->
+                                            ${cmt.adminReply ? `
+                                                <div class="ml-9 mt-3 p-3 rounded-lg bg-purple-50 border border-purple-200 text-xs text-purple-900 space-y-1">
+                                                    <div class="flex items-center gap-1.5 font-bold text-brand-900">
+                                                        <i class="fa-solid fa-user-doctor text-brand-700"></i> Sohag Bhai (Admin)
+                                                    </div>
+                                                    <p class="text-purple-950">${cmt.adminReply}</p>
+                                                </div>
+                                            ` : ''}
+
+                                            <!-- Admin Reply Trigger (Visible only to Admin) -->
+                                            ${state.currentUser && state.currentUser.role === 'admin' && !cmt.adminReply ? `
+                                                <div class="ml-9 pt-2">
+                                                    <button onclick="promptAdminReply('${cmt.id}')" class="text-[11px] font-bold text-brand-700 hover:underline">
+                                                        <i class="fa-solid fa-reply mr-1"></i> Reply to Student
+                                                    </button>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: PDF Notes & Lecture Playlist -->
+                        <div class="space-y-6">
+                            <!-- Attached PDF Lecture Notes -->
+                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                <h3 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-file-pdf text-rose-600 text-lg"></i>
+                                    Class PDF Notes (${video.pdfs ? video.pdfs.length : 0})
+                                </h3>
+
+                                <div class="space-y-3">
+                                    ${(!video.pdfs || video.pdfs.length === 0) ? `
+                                        <p class="text-xs text-slate-400 italic">No PDF attachments uploaded for this lecture.</p>
+                                    ` : video.pdfs.map(pdf => `
+                                        <div class="p-3 rounded-xl border border-slate-200 hover:border-rose-300 bg-slate-50 transition flex items-center justify-between">
+                                            <div class="flex items-center gap-3 overflow-hidden">
+                                                <i class="fa-solid fa-file-pdf text-rose-600 text-xl flex-shrink-0"></i>
+                                                <div class="truncate">
+                                                    <h5 class="text-xs font-bold text-slate-800 truncate">${pdf.title}</h5>
+                                                    <p class="text-[10px] text-slate-400">${pdf.size || 'PDF Document'}</p>
+                                                </div>
+                                            </div>
+                                            <button onclick="downloadPdfMock('${pdf.title}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition flex-shrink-0">
+                                                <i class="fa-solid fa-download"></i>
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Next Lectures Playlist Sidebar -->
+                            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                                <h3 class="text-base font-bold text-slate-900 mb-4">
+                                    More in ${video.subject}
+                                </h3>
+                                <div class="space-y-3">
+                                    ${state.videos.filter(v => v.subject === video.subject).map(v => `
+                                        <div onclick="navigateTo('video-watch', { videoId: '${v.id}' })" class="p-2.5 rounded-xl border ${v.id === video.id ? 'border-brand-500 bg-purple-50/50' : 'border-slate-100 hover:bg-slate-50'} cursor-pointer transition flex gap-3 items-center">
+                                            <img src="${v.thumbnail}" class="w-16 h-10 object-cover rounded-md flex-shrink-0">
+                                            <div class="overflow-hidden">
+                                                <h5 class="text-xs font-bold text-slate-800 truncate">${v.title}</h5>
+                                                <span class="text-[10px] text-slate-400">Class ${v.classNo}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        /* --------------------------------------------------------------------------
+           D. ADMIN DASHBOARD & CONTROL CENTER
+           -------------------------------------------------------------------------- */
+        function renderAdminDashboardPage() {
+            const pendingStudents = state.students.filter(s => s.status === 'pending');
+            const approvedStudents = state.students.filter(s => s.status === 'approved');
+
+            return `
+                <div class="bg-slate-900 text-white py-8 border-b border-slate-800">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded text-xs font-extrabold bg-amber-400 text-slate-950 uppercase tracking-wider">
+                                    <i class="fa-solid fa-user-shield mr-1"></i> Admin Portal
+                                </span>
+                                <h1 class="text-2xl sm:text-3xl font-bold mt-2">Sohag Bhai LMS Control Panel</h1>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openAddVideoModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold shadow-lg transition">
+                                    <i class="fa-solid fa-plus mr-1"></i> Add New Class Video
+                                </button>
+                                <button onclick="openAddSubjectModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-slate-700 transition">
+                                    <i class="fa-solid fa-folder-plus mr-1"></i> Create Subject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+                    
+                    <!-- 1. STUDENT APPROVAL REQUESTS SECTION -->
+                    <div id="approvalSection" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-clock text-amber-600"></i>
+                                    Student Registration Approval Requests
+                                </h3>
+                                <p class="text-xs text-slate-500">First-time visitors waiting for Admin confirmation to access videos & notes.</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold ${pendingStudents.length > 0 ? 'bg-amber-100 text-amber-800 animate-pulse' : 'bg-slate-100 text-slate-600'}">
+                                ${pendingStudents.length} Pending
+                            </span>
+                        </div>
+
+                        ${pendingStudents.length === 0 ? `
+                            <div class="text-center py-8 text-xs text-slate-400">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-2xl mb-1"></i>
+                                <p>No pending student approval requests. All registered students have been processed!</p>
+                            </div>
+                        ` : `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-3">Student Name</th>
+                                            <th class="p-3">Email Address</th>
+                                            <th class="p-3">College / Session</th>
+                                            <th class="p-3">Requested On</th>
+                                            <th class="p-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${pendingStudents.map(std => `
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="p-3 font-bold text-slate-900">${std.name}</td>
+                                                <td class="p-3 font-mono text-slate-600">${std.email}</td>
+                                                <td class="p-3 text-slate-600">${std.college}</td>
+                                                <td class="p-3 text-slate-400">${std.registeredAt}</td>
+                                                <td class="p-3 text-right space-x-2">
+                                                    <button onclick="approveStudent('${std.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition shadow-sm">
+                                                        <i class="fa-solid fa-check mr-1"></i> Approve
+                                                    </button>
+                                                    <button onclick="rejectStudent('${std.id}')" class="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded-lg transition">
+                                                        Reject
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- 2. CONTENT MANAGEMENT: CLASS VIDEOS LIST -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-video text-brand-700"></i>
+                                Uploaded Classes & PDF Resources (${state.videos.length})
+                            </h3>
+                            <button onclick="openAddVideoModal()" class="text-xs font-bold text-brand-700 hover:underline">
+                                + Add Video
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-3">Thumbnail</th>
+                                        <th class="p-3">Title & Chapter</th>
+                                        <th class="p-3">Subject</th>
+                                        <th class="p-3">PDF Notes</th>
+                                        <th class="p-3 text-right">Manage</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${state.videos.map(vid => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-3">
+                                                <img src="${vid.thumbnail}" class="w-16 h-10 object-cover rounded">
+                                            </td>
+                                            <td class="p-3 max-w-xs">
+                                                <p class="font-bold text-slate-900 truncate">${vid.title}</p>
+                                                <p class="text-[10px] text-slate-400">Class #${vid.classNo} - ${vid.chapter}</p>
+                                            </td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded font-bold bg-purple-100 text-purple-900">${vid.subject}</span>
+                                            </td>
+                                            <td class="p-3 text-slate-600">
+                                                ${vid.pdfs ? vid.pdfs.length : 0} PDF(s) Attached
+                                            </td>
+                                            <td class="p-3 text-right space-x-2">
+                                                <button onclick="deleteVideo('${vid.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Delete Lecture">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. EXAMINATIONS MANAGER -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-file-pen text-teal-600"></i>
+                                Examination Links Manager (${state.exams.length})
+                            </h3>
+                            <button onclick="openAddExamModal()" class="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-xs font-bold shadow hover:bg-teal-700 transition">
+                                + Add Exam Notice
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${state.exams.map(ex => `
+                                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-3">
+                                    <div>
+                                        <div class="flex justify-between items-start">
+                                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-teal-100 text-teal-900">${ex.subject}</span>
+                                            <button onclick="deleteExam('${ex.id}')" class="text-rose-500 text-xs hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                        <h4 class="font-bold text-slate-900 text-sm mt-2">${ex.title}</h4>
+                                        <p class="text-xs text-slate-500 mt-1">${ex.description}</p>
+                                    </div>
+                                    <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-xs text-slate-600">
+                                        <span><i class="fa-solid fa-clock mr-1"></i> ${ex.examDate} @ ${ex.examTime}</span>
+                                        <a href="${ex.examUrl}" target="_blank" class="text-teal-700 font-bold hover:underline">Exam Link <i class="fa-solid fa-up-right-from-square text-[10px]"></i></a>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 4. ALL APPROVED STUDENTS REGISTER -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-users-check text-emerald-600"></i>
+                                Active Approved Medical Students (${approvedStudents.length})
+                            </h3>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-3">Student Name</th>
+                                        <th class="p-3">Email Address</th>
+                                        <th class="p-3">College</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3 text-right">Revoke Access</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${approvedStudents.map(std => `
+                                        <tr class="hover:bg-slate-50">
+                                            <td class="p-3 font-bold text-slate-900">${std.name}</td>
+                                            <td class="p-3 text-slate-600">${std.email}</td>
+                                            <td class="p-3 text-slate-600">${std.college}</td>
+                                            <td class="p-3">
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase">Approved</span>
+                                            </td>
+                                            <td class="p-3 text-right">
+                                                <button onclick="revokeStudent('${std.id}')" class="text-xs text-rose-600 font-semibold hover:underline">Revoke Access</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- MODALS FOR ADMIN ACTIONS -->
+                ${renderAdminModals()}
+            `;
+        }
+
+        /* --------------------------------------------------------------------------
+           E. ONLINE EXAMINATIONS VIEW
+           -------------------------------------------------------------------------- */
+        function renderExamsPage() {
+            return `
+                <div class="bg-slate-900 text-white py-10">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold">Medical Examinations & Tests</h1>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1">Participate in term examinations, OSPE, viva spotters, and monthly evaluation tests.</p>
+                    </div>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    ${state.exams.length === 0 ? `
+                        <div class="text-center py-16 bg-white rounded-2xl border border-slate-200">
+                            <i class="fa-solid fa-file-pen text-4xl text-slate-300 mb-3"></i>
+                            <h3 class="text-lg font-bold text-slate-800">No active examinations currently scheduled</h3>
+                            <p class="text-xs text-slate-500 mt-1">Check back later or contact Sohag Bhai for upcoming test dates.</p>
+                        </div>
+                    ` : `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            ${state.exams.map(ex => `
+                                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="px-2.5 py-0.5 rounded text-xs font-extrabold bg-brand-100 text-brand-900">${ex.subject}</span>
+                                            <span class="text-xs font-semibold text-slate-500"><i class="fa-solid fa-calendar mr-1"></i> ${ex.examDate}</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-slate-900 mb-2">${ex.title}</h3>
+                                        <p class="text-xs text-slate-600 leading-relaxed">${ex.description}</p>
+                                    </div>
+
+                                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                        <div class="text-xs text-slate-500">
+                                            Time: <strong class="text-slate-800">${ex.examTime}</strong>
+                                        </div>
+                                        <a href="${ex.examUrl}" target="_blank" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2">
+                                            <span>Enter Exam Portal</span>
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        /* ==========================================================================
+           6. ADMIN ACTION MODALS & HANDLERS
+           ========================================================================== */
+
+        function renderAdminModals() {
+            return `
+                <!-- MODAL: ADD NEW VIDEO LECTURE -->
+                <div id="addVideoModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden p-6 border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                            <h3 class="text-lg font-bold text-slate-900">Upload New Class Video</h3>
+                            <button onclick="closeModal('addVideoModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <form onsubmit="handleCreateVideo(event)" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Class Title</label>
+                                <input type="text" id="newVideoTitle" required placeholder="e.g. Renal Physiology: Glomerular Filtration Rate" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Subject</label>
+                                    <select id="newVideoSubject" required class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                                        ${state.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Chapter Name</label>
+                                    <input type="text" id="newVideoChapter" required placeholder="e.g. Renal System" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Class No</label>
+                                    <input type="text" id="newVideoClassNo" placeholder="01" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Upload Date</label>
+                                    <input type="date" id="newVideoDate" value="${new Date().toISOString().split('T')[0]}" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Embed Video URL</label>
+                                <input type="url" id="newVideoUrl" required placeholder="https://www.youtube.com/embed/..." class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Thumbnail Image URL</label>
+                                <input type="url" id="newVideoThumbnail" placeholder="https://images.unsplash.com/photo-..." class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Class Description</label>
+                                <textarea id="newVideoDesc" rows="3" required placeholder="Detailed topic breakdown..." class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Attached PDF Notes Title</label>
+                                <input type="text" id="newVideoPdfTitle" placeholder="Lecture Notes PDF Name" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <button type="submit" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-lg shadow-md transition">
+                                Publish Class Video
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- MODAL: ADD DYNAMIC SUBJECT -->
+                <div id="addSubjectModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+                        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                            <h3 class="text-lg font-bold text-slate-900">Create Unlimited New Subject</h3>
+                            <button onclick="closeModal('addSubjectModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <form onsubmit="handleCreateSubject(event)" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Subject Name</label>
+                                <input type="text" id="newSubName" required placeholder="e.g. Pathology / Pharmacology" class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Description</label>
+                                <input type="text" id="newSubDesc" required placeholder="Brief overview of course material..." class="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 bg-brand-900 hover:bg-slate-900 text-white font-bold rounded-lg shadow transition">
+                                Create Subject Folder
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- MODAL: ADD EXAMINATION NOTICE -->
+                <div id="addExamModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100">
+                        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                            <h3 class="text-lg font-bold text-slate-900">Schedule Examination Notice</h3>
+                            <button onclick="closeModal('addExamModal')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <form onsubmit="handleCreateExam(event)" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Exam Title</label>
+                                <input type="text" id="newExamTitle" required placeholder="e.g. Term 2 Physiology Written Test" class="w-full p-2.5 border rounded-lg outline-none">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Subject</label>
+                                    <input type="text" id="newExamSubject" required placeholder="Physiology" class="w-full p-2.5 border rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-700 mb-1">Exam Date</label>
+                                    <input type="date" id="newExamDate" required class="w-full p-2.5 border rounded-lg outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">External Exam Portal Link (Google Form / Quiz)</label>
+                                <input type="url" id="newExamUrl" required placeholder="https://forms.google.com/..." class="w-full p-2.5 border rounded-lg outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Exam Instructions</label>
+                                <textarea id="newExamDesc" rows="2" placeholder="Time limit: 30 minutes..." class="w-full p-2.5 border rounded-lg outline-none"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-lg shadow transition">
+                                Publish Exam Link
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal triggers
+        function openAddVideoModal() { document.getElementById('addVideoModal').classList.remove('hidden'); }
+        function openAddSubjectModal() { document.getElementById('addSubjectModal').classList.remove('hidden'); }
+        function openAddExamModal() { document.getElementById('addExamModal').classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        /* ==========================================================================
+           7. STUDENT APPROVAL WORKFLOW HANDLERS
+           ========================================================================== */
+
+        function approveStudent(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.status = 'approved';
+                
+                // If this is currently logged in user, update session status
+                if (state.currentUser && state.currentUser.email === student.email) {
+                    state.currentUser.status = 'approved';
+                }
+
+                saveState();
+                showToast(`Student ${student.name} approved successfully!`, 'success');
+                renderPage();
+            }
+        }
+
+        function rejectStudent(studentId) {
+            state.students = state.students.filter(s => s.id === studentId);
+            saveState();
+            showToast('Registration request rejected.', 'warning');
+            renderPage();
+        }
+
+        function revokeStudent(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student.status = 'pending';
+                saveState();
+                showToast(`Revoked approval access for ${student.name}.`, 'info');
+                renderPage();
+            }
+        }
+
+        /* ==========================================================================
+           8. ADMIN CONTENT CREATION HANDLERS
+           ========================================================================== */
+
+        function handleCreateVideo(e) {
+            e.preventDefault();
+            const title = document.getElementById('newVideoTitle').value.trim();
+            const subject = document.getElementById('newVideoSubject').value;
+            const chapter = document.getElementById('newVideoChapter').value.trim();
+            const classNo = document.getElementById('newVideoClassNo').value.trim() || '01';
+            const uploadDate = document.getElementById('newVideoDate').value;
+            const videoUrl = document.getElementById('newVideoUrl').value.trim();
+            let thumbnail = document.getElementById('newVideoThumbnail').value.trim();
+            const desc = document.getElementById('newVideoDesc').value.trim();
+            const pdfTitle = document.getElementById('newVideoPdfTitle').value.trim();
+
+            if (!thumbnail) {
+                thumbnail = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80';
+            }
+
+            const newVideo = {
+                id: 'vid-' + Date.now(),
+                title: title,
+                description: desc,
+                subject: subject,
+                chapter: chapter,
+                classNo: classNo,
+                uploadDate: uploadDate,
+                videoUrl: videoUrl,
+                thumbnail: thumbnail,
+                pdfs: pdfTitle ? [{ id: 'pdf-' + Date.now(), title: pdfTitle + '.pdf', size: '2.5 MB', url: '#' }] : []
+            };
+
+            state.videos.unshift(newVideo);
+            saveState();
+            closeModal('addVideoModal');
+            showToast('New class video lecture uploaded successfully!', 'success');
+            renderPage();
+        }
+
+        function deleteVideo(videoId) {
+            if (confirm('Are you sure you want to delete this lecture video?')) {
+                state.videos = state.videos.filter(v => v.id !== videoId);
+                saveState();
+                showToast('Lecture deleted.', 'info');
+                renderPage();
+            }
+        }
+
+        function handleCreateSubject(e) {
+            e.preventDefault();
+            const name = document.getElementById('newSubName').value.trim();
+            const desc = document.getElementById('newSubDesc').value.trim();
+
+            if (state.subjects.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                showToast('Subject already exists!', 'error');
+                return;
+            }
+
+            const newSub = {
+                id: 'sub-' + Date.now(),
+                name: name,
+                description: desc,
+                icon: 'fa-book-medical',
+                color: 'bg-indigo-600'
+            };
+
+            state.subjects.push(newSub);
+            saveState();
+            closeModal('addSubjectModal');
+            showToast(`Subject folder "${name}" created successfully!`, 'success');
+            renderPage();
+        }
+
+        function handleCreateExam(e) {
+            e.preventDefault();
+            const title = document.getElementById('newExamTitle').value.trim();
+            const subject = document.getElementById('newExamSubject').value.trim();
+            const date = document.getElementById('newExamDate').value;
+            const url = document.getElementById('newExamUrl').value.trim();
+            const desc = document.getElementById('newExamDesc').value.trim();
+
+            const newExam = {
+                id: 'exam-' + Date.now(),
+                title: title,
+                subject: subject,
+                description: desc || 'Standard Medical Quiz',
+                examDate: date,
+                examTime: '08:00 PM',
+                examUrl: url
+            };
+
+            state.exams.unshift(newExam);
+            saveState();
+            closeModal('addExamModal');
+            showToast('Examination scheduled successfully!', 'success');
+            renderPage();
+        }
+
+        function deleteExam(examId) {
+            state.exams = state.exams.filter(e => e.id !== examId);
+            saveState();
+            showToast('Exam removed.', 'info');
+            renderPage();
+        }
+
+        /* ==========================================================================
+           9. STUDENT COMMENTS & PDF DOWNLOAD SIMULATION
+           ========================================================================== */
+
+        function handlePostComment(e, videoId) {
+            e.preventDefault();
+            const input = document.getElementById('commentInputText');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const newCmt = {
+                id: 'cmt-' + Date.now(),
+                videoId: videoId,
+                studentName: state.currentUser.name,
+                studentEmail: state.currentUser.email,
+                text: text,
+                createdAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                adminReply: null
+            };
+
+            state.comments.push(newCmt);
+            saveState();
+            input.value = '';
+            showToast('Your question/comment has been posted.', 'success');
+            renderPage();
+        }
+
+        function promptAdminReply(commentId) {
+            const reply = prompt('Enter Sohag Bhai Admin reply to this student:');
+            if (reply && reply.trim() !== '') {
+                const cmt = state.comments.find(c => c.id === commentId);
+                if (cmt) {
+                    cmt.adminReply = reply.trim();
+                    saveState();
+                    showToast('Reply published to student!', 'success');
+                    renderPage();
+                }
+            }
+        }
+
+        function downloadPdfMock(pdfTitle) {
+            showToast(`Downloading PDF Note: ${pdfTitle}`, 'success');
+        }
+
+        /* ==========================================================================
+           10. APP INITIALIZATION ON WINDOW LOAD
+           ========================================================================== */
+        window.onload = function() {
+            initStore();
+            renderPage();
+        };
+    </script>
+</body>
+</html>
